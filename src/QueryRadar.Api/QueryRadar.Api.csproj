@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>QueryRadar.Api</RootNamespace>
+    <AssemblyName>QueryRadar.Api</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QueryRadar.Engine\QueryRadar.Engine.csproj" />
+  </ItemGroup>
+
+</Project>

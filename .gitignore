@@ -1,0 +1,22 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+artifacts/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+*.trx
+
+# Node / web
+web/node_modules/
+web/dist/
+web/.vite/
+npm-debug.log*
+
+# Env / editors
+.env
+.idea/
+*.swp
+.DS_Store
