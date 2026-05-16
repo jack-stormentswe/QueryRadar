@@ -1,50 +1,78 @@
 # QueryRadar
 
-Static analysis for ORM query problems — catches N+1 queries, accidental full-table
-scans, `SELECT *` over-fetching, and missing-index patterns in **Entity Framework
-Core** code, before they hit production.
+Catch slow and wrong database queries **before** they ship.
 
-QueryRadar is three pieces:
+QueryRadar is two tools sharing one thesis — *find the bad query early*:
 
-- **Engine** (`src/QueryRadar.Engine`) — a Roslyn-based analyzer. The value lives
-  here: a registry of independent ORM rules, each detecting one anti-pattern.
-- **API** (`src/QueryRadar.Api`) — an ASP.NET minimal API that runs the engine
-  over a project and returns findings as JSON.
-- **Dashboard** (`web/`) — a TypeScript + React UI that visualizes findings
-  across a codebase and over CI history.
+- **Analyzer** — static analysis of Entity Framework Core code for N+1
+  queries, over-fetching and full scans (Roslyn-powered).
+- **Visual Query Builder** — compose a `SELECT` from your schema (tables,
+  joins, filters, sort) with live SQL generation and live "query smell"
+  checks as you build.
 
-## Why this exists
+Everything runs locally. No database connection, no telemetry.
 
-Every backend team ships ORM code that is silently wrong or 100× too slow. The
-existing tooling is weak and fragmented: runtime profilers catch N+1 only after
-deploy, and there is no good static, EF-Core-aware analyzer. QueryRadar closes
-that gap.
+## The app
+
+A single-page dashboard with four views:
+
+| View | What it does |
+|---|---|
+| **Home** | Landing page / overview |
+| **Analyzer** | Paste EF Core code → findings. Example snippets, source persisted locally, click a severity card to filter, click a finding to jump to the line. |
+| **Query Builder** | Import your schema from `CREATE TABLE` DDL (or use the sample), click tables/columns onto a canvas, add joins/filters/sort, watch SQL build live, get smell warnings (cartesian joins, unbounded scans, leading wildcards). Schema + query persist locally. |
+| **Rules** | The engine's full rule catalogue, pulled live from the API. |
+
+## Pieces
+
+- **`src/QueryRadar.Engine`** — Roslyn-based analyzer: a registry of
+  independent ORM rules, each detecting one anti-pattern. The value lives here.
+- **`src/QueryRadar.Api`** — ASP.NET minimal API.
+  `POST /api/analyze` (source → findings) and `GET /api/rules` (rule catalogue).
+- **`src/QueryRadar.Cli`** — analyze a single `.cs` file from the terminal.
+- **`web/`** — TypeScript + React (Vite) dashboard. The Query Builder is
+  pure client-side; the Analyzer/Rules views call the API.
 
 ## Quick start
 
 ```bash
-# analyze a solution from the CLI
-dotnet run --project src/QueryRadar.Cli -- analyze /path/to/your/Solution.sln
-
-# run the API
+# 1. API (serves on http://localhost:5080)
 dotnet run --project src/QueryRadar.Api
 
-# run the dashboard (talks to the API on :5080)
+# 2. dashboard (http://localhost:5173, proxies /api to :5080)
 cd web && npm install && npm run dev
+
+# CLI: analyze one C# file
+dotnet run --project src/QueryRadar.Cli -- analyze ./path/to/File.cs
 ```
+
+Build & test everything:
+
+```bash
+dotnet build && dotnet test
+cd web && npm run build
+```
+
+## Status
+
+The **N+1 detector (`QR0001`) is implemented and tested**. The other rules,
+additional ORM frontends (Dapper, SQLAlchemy, …), solution-wide analysis, and
+the richer query-builder features are intentionally open — each is a small,
+self-contained unit. See [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Architecture
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The one invariant that matters:
-**one ORM anti-pattern = one `IOrmRule` implementation = one PR**. The engine,
-frontends, and rules are independently extensible so the contribution surface
-never runs dry.
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The invariant that keeps the
+codebase contributable: **one ORM anti-pattern = one `IOrmRule` = one PR**,
+with one fixture and one test. Engine, frontends and rules extend
+independently.
 
 ## Contributing
 
-New rules are the lifeblood of the project. The mechanical recipe is in
-[docs/WRITING_A_RULE.md](docs/WRITING_A_RULE.md) — each open issue maps to exactly
-one rule, with a fixture, a detector, and a test.
+New rules are the lifeblood of the project. The mechanical recipe —
+fixture → detector → registration → test — is in
+[docs/WRITING_A_RULE.md](docs/WRITING_A_RULE.md). See also
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
