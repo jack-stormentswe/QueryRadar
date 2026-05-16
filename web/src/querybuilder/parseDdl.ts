@@ -56,7 +56,7 @@ export function parseDdl(ddl: string): { schema: Schema; errors: string[] } {
 }
 
 function unquote(s: string): string {
-  return s.replace(/^["`\[]+|["`\]]+$/g, '').trim();
+  return s.replace(/^["`[]+|["`\]]+$/g, '').trim();
 }
 
 function isConstraintLine(line: string): boolean {
