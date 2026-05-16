@@ -181,6 +181,30 @@ textarea:focus {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 0.7rem 0.9rem;
+  appearance: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.1s;
+}
+
+.stat:hover { transform: translateY(-1px); }
+
+.stat.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.head-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+tr.clickable { cursor: pointer; }
+
+.clear-filter {
+  display: inline-block;
+  margin: 0.5rem 0 0.7rem;
 }
 
 .stat .n {

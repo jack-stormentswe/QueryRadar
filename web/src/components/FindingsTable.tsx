@@ -1,12 +1,18 @@
 import type { Finding } from '../api/client';
 import { SeverityBadge } from './SeverityBadge';
 
-export function FindingsTable({ findings }: { findings: Finding[] }) {
+export function FindingsTable({
+  findings,
+  onSelect,
+}: {
+  findings: Finding[];
+  onSelect?: (line: number) => void;
+}) {
   if (findings.length === 0) {
     return (
       <div className="empty">
         <div className="ok">✓</div>
-        <p>No query problems detected.</p>
+        <p>No findings.</p>
       </div>
     );
   }
@@ -22,9 +28,18 @@ export function FindingsTable({ findings }: { findings: Finding[] }) {
       </thead>
       <tbody>
         {findings.map((f, i) => (
-          <tr key={i}>
+          <tr
+            key={i}
+            className={onSelect ? 'clickable' : undefined}
+            onClick={() => onSelect?.(f.line)}
+          >
             <td>
-              <a href={f.docsUrl} target="_blank" rel="noreferrer">
+              <a
+                href={f.docsUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {f.ruleId}
               </a>
             </td>

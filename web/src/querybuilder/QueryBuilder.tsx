@@ -3,7 +3,7 @@ import { sampleSchema } from './sampleSchema';
 import { emptyQuery, type QueryModel, type Schema } from './types';
 import { generateSql } from './generateSql';
 import { columnsOf } from './utils';
-import { useLocalStorage } from './useLocalStorage';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import { lintQuery } from './lintQuery';
 import { SchemaPanel } from './SchemaPanel';
 import { SchemaImport } from './SchemaImport';

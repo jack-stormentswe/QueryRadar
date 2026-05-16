@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const INDENT = '  ';
 
@@ -11,11 +11,32 @@ const INDENT = '  ';
 export function CodeEditor({
   value,
   onChange,
+  gotoLine,
 }: {
   value: string;
   onChange: (next: string) => void;
+  /** 1-based line to select/scroll to; bump a counter to re-trigger same line. */
+  gotoLine?: { line: number; nonce: number } | null;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!gotoLine) return;
+    const el = ref.current;
+    if (!el) return;
+
+    const lines = value.split('\n');
+    const idx = Math.min(Math.max(gotoLine.line, 1), lines.length) - 1;
+    const start = lines.slice(0, idx).reduce((n, l) => n + l.length + 1, 0);
+    const end = start + lines[idx].length;
+
+    el.focus();
+    el.selectionStart = start;
+    el.selectionEnd = end;
+    // Approximate scroll: line index × line height.
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 18;
+    el.scrollTop = Math.max(0, (idx - 3) * lineHeight);
+  }, [gotoLine, value]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key !== 'Tab') return;
