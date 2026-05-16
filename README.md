@@ -1,3 +1,6 @@
+<img width="1161" height="747" alt="image" src="https://github.com/user-attachments/assets/638a8624-0154-4b58-9df9-f3a1812ab1dd" />
+
+
 # QueryRadar
 
 Catch slow and wrong database queries **before** they ship.
